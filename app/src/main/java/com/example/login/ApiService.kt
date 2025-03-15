@@ -10,4 +10,7 @@ interface ApiService {
         @Query("usuario") email: String,
         @Query("senha") senha: String
     ): Call<List<Usuario>>
+
+    @GET("produtos.php") // Substitua pelo endpoint correto da sua API, se necessário
+    fun getProdutos(): Call<List<Produto>>
 }
