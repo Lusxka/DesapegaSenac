@@ -1,8 +1,6 @@
 package com.example.login
 
 import android.os.Bundle
-import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,46 +15,38 @@ class ProdutosActivity : AppCompatActivity() {
 
     private lateinit var recyclerViewProdutos: RecyclerView
     private lateinit var produtoAdapter: ProdutoAdapter
-    private lateinit var apiService: ApiService // Declaração da ApiService
-    lateinit var nomeProduto: TextView
-    lateinit var descProduto: TextView
-    lateinit var precoProduto: TextView
-    lateinit var descontoProduto: TextView
-    lateinit var ativoProduto: TextView
+    private lateinit var apiService: ApiService // Defina o seu serviço Retrofit aqui
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_produtos)
 
-        // Referência ao TextView e definição do texto
-        val textViewWelcome = findViewById<TextView>(R.id.textViewWelcome)
-        textViewWelcome.text = "Bem-vindo à tela de Produtos!"
-
-        // Configuração do RecyclerView
+        // Inicializar o RecyclerView e Adapter
         recyclerViewProdutos = findViewById(R.id.recyclerViewProdutos)
         recyclerViewProdutos.layoutManager = LinearLayoutManager(this)
-        produtoAdapter = ProdutoAdapter(emptyList()) // Inicializa com uma lista vazia
+
+        produtoAdapter = ProdutoAdapter(emptyList())
         recyclerViewProdutos.adapter = produtoAdapter
 
-        // Configuração do Retrofit
+        // Inicializar o Retrofit e o ApiService
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.135.111.48/meu_projeto_api/") // Certifique-se de que o IP está correto e acessível
+            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/") // Substitua pelo seu endpoint
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-        apiService = retrofit.create(ApiService::class.java) // Inicializa a ApiService
+        apiService = retrofit.create(ApiService::class.java)
 
-        // Chamada para obter os produtos
+        // Carregar produtos da API
         getProdutos()
     }
 
     private fun getProdutos() {
-        val call = apiService.getProdutos()
+        val call = apiService.getProdutos() // Chamada para a API
         call.enqueue(object : Callback<List<Produto>> {
             override fun onResponse(call: Call<List<Produto>>, response: Response<List<Produto>>) {
                 if (response.isSuccessful) {
                     val produtos = response.body() ?: emptyList()
-                    produtoAdapter.updateProdutos(produtos) // Atualiza o adapter com os dados recebidos
+                    produtoAdapter.updateProdutos(produtos)
                 } else {
                     Toast.makeText(this@ProdutosActivity, "Erro ao obter produtos", Toast.LENGTH_SHORT).show()
                 }
@@ -66,14 +56,5 @@ class ProdutosActivity : AppCompatActivity() {
                 Toast.makeText(this@ProdutosActivity, "Erro de rede: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
-    }
-
-    init {
-        // Inicializando os componentes
-        nomeProduto = findViewById(R.id.txtNomeProduto)
-        descProduto = findViewById(R.id.txtDescProduto)
-        precoProduto = findViewById(R.id.txtPrecoProduto)
-        descontoProduto = findViewById(R.id.txtDescontoProduto)
-        ativoProduto = findViewById(R.id.txtAtivoProduto)
     }
 }

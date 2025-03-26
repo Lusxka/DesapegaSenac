@@ -44,7 +44,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.135.111.48/meu_projeto_api/") // Certifique-se de que o IP está correto e acessível
+            .baseUrl("http://192.168.56.1/meu_projeto_api/") // Certifique-se de que o IP está correto e acessível
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

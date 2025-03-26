@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- item_produto.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -7,36 +7,31 @@
 
     <TextView
         android:id="@+id/txtNomeProduto"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nome do Produto"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:text="Nome do Produto" />
 
     <TextView
         android:id="@+id/txtDescProduto"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Descrição do Produto"
-        android:textSize="16sp" />
+        android:text="Descrição do Produto" />
 
     <TextView
         android:id="@+id/txtPrecoProduto"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Preço: R$ 0,00"
-        android:textSize="16sp" />
+        android:text="Preço do Produto" />
+
     <TextView
         android:id="@+id/txtDescontoProduto"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Desconto: 0%"
-        android:textSize="16sp" />
+        android:text="Desconto do Produto" />
+
     <TextView
         android:id="@+id/txtAtivoProduto"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ativo: Sim"
-        android:textSize="16sp" />
-
+        android:text="Produto Ativo" />
 </LinearLayout>

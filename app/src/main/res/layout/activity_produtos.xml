@@ -1,27 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_produtos.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".ProdutosActivity">
+    android:orientation="vertical">
 
-    <!-- TextView para exibir a mensagem de boas-vindas com espaçamento no topo -->
     <TextView
-        android:id="@+id/textViewWelcome"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Bem-vindo à tela de Produtos!"
-        android:textColor="#333333"
+        android:text="Bem-vindo à tela de produtos!"
+        android:gravity="center"
         android:textSize="20sp"
-        android:textStyle="bold" />
+        android:padding="16dp"/>
 
-    <!-- RecyclerView para exibir a lista de produtos -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewProdutos"
         android:layout_width="match_parent"
-        android:layout_height="0dp"/> <!-- Defina a altura como 0dp -->
-
+        android:layout_height="wrap_content"/>
 </LinearLayout>

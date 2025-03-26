@@ -11,6 +11,7 @@ interface ApiService {
         @Query("senha") senha: String
     ): Call<List<Usuario>>
 
-    @GET("produtos.php") // Substitua pelo endpoint correto da sua API, se necessário
+    @GET("produtos.php")  // Substitua com o caminho correto da sua API
     fun getProdutos(): Call<List<Produto>>
+
 }
