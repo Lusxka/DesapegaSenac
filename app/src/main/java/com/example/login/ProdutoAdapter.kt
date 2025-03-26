@@ -25,16 +25,17 @@ class ProdutoAdapter(private var produtos: List<Produto>) : RecyclerView.Adapter
 
     override fun onBindViewHolder(holder: ProdutoViewHolder, position: Int) {
         val produto = produtos[position]
-        holder.nomeProduto.text = "Nome: ${produto.PRODUTO_NOME}"
-        holder.descProduto.text = "Descrição: ${produto.PRODUTO_DESC}"
+        holder.nomeProduto.text = "Nome: ${produto.produtoNome}"
+        holder.descProduto.text = "Descrição: ${produto.produtoDescricao}"
 
         // Formatação do preço
         val formatoMoeda = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
-        val precoFormatado = formatoMoeda.format(produto.PRODUTO_PRECO)
+        val precoFormatado = formatoMoeda.format(produto.produtoPreco)
         holder.precoProduto.text = "Preço: $precoFormatado"
 
-        holder.descontoProduto.text = "Desconto: ${produto.PRODUTO_DESCONTO}%"
-        holder.ativoProduto.text = "Ativo: ${if (produto.PRODUTO_ATIVO == 1) "Sim" else "Não"}"
+        val descontoFormatado = NumberFormat.getNumberInstance(Locale.getDefault()).format(produto.produtoDesconto)
+        holder.descontoProduto.text = "Desconto: ${descontoFormatado}"
+        holder.ativoProduto.text = "Ativo: ${if (produto.produtoAtivo == 1) "Sim" else "Não"}"
     }
 
     override fun getItemCount(): Int {
