@@ -1,37 +1,95 @@
-<!-- item_produto.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_margin="12dp"
+    android:elevation="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardBackgroundColor="@android:color/white">
 
-    <TextView
-        android:id="@+id/txtNomeProduto"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nome do Produto" />
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center"
+        android:background="@android:color/white">
 
-    <TextView
-        android:id="@+id/txtDescProduto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Descrição do Produto" />
+        <!-- Imagem do Produto -->
+        <ImageView
+            android:id="@+id/imgProduto"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:contentDescription="Imagem do produto"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/rounded_image"
+            android:elevation="4dp"/>
 
-    <TextView
-        android:id="@+id/txtPrecoProduto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Preço do Produto" />
+        <!-- Nome do Produto -->
+        <TextView
+            android:id="@+id/txtNomeProduto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nome do Produto"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="6dp"/>
 
-    <TextView
-        android:id="@+id/txtDescontoProduto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Desconto do Produto" />
+        <!-- Descrição do Produto -->
+        <TextView
+            android:id="@+id/txtDescProduto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Descrição breve do produto."
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:id="@+id/txtAtivoProduto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Produto Ativo" />
-</LinearLayout>
+        <!-- Preço do Produto -->
+        <TextView
+            android:id="@+id/txtPrecoProduto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Preço: R$ 0,00"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_green_dark"
+            android:layout_marginBottom="6dp"/>
+
+        <!-- Desconto do Produto -->
+        <TextView
+            android:id="@+id/txtDescontoProduto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Desconto: R$ 0,00"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_red_light"
+            android:layout_marginBottom="6dp"/>
+
+        <!-- Status do Produto -->
+        <TextView
+            android:id="@+id/txtAtivoProduto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Produto Ativo"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Botão de Contato -->
+        <Button
+            android:id="@+id/btnContato"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Contato"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/rounded_button"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

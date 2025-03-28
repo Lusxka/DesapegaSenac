@@ -80,7 +80,7 @@ class ProdutosActivity : AppCompatActivity() {
 
         // Inicializar o Retrofit com o OkHttpClient inseguro e o interceptor
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.1.4/meu_projeto_api/listagem/")
+            .baseUrl("https://192.168.14.88/meu_projeto_api/listagem/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(unsafeOkHttpClient)
             .build()
