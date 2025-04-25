@@ -2,6 +2,7 @@ package com.example.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -62,14 +63,15 @@ class ProdutosActivity : AppCompatActivity() {
     private lateinit var recyclerViewProdutos: RecyclerView
     private lateinit var produtoAdapter: ProdutoAdapter
     private lateinit var apiService: ApiService
-    private lateinit var btnIrParaAdmin: Button // Adicione esta linha
+    private lateinit var btnIrParaAdmin: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_produtos)
 
-        btnIrParaAdmin = findViewById(R.id.btnIrParaAdmin) // Inicialize o botão
+        btnIrParaAdmin = findViewById(R.id.btnIrParaAdmin)
         btnIrParaAdmin.setOnClickListener {
+            Log.d("ProdutosActivity", "Botão Admin clicado!") // Adicionado para debugging
             val intent = Intent(this, AdminProdutosActivity::class.java)
             startActivity(intent)
         }

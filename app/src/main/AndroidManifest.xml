@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissão de acesso à internet -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -26,17 +25,17 @@
             </intent-filter>
         </activity>
 
-        <!-- Declarar ProdutosActivity -->
         <activity
             android:name=".ProdutosActivity"
             android:exported="true" />
 
-        <!-- Outras activities aqui -->
+        <activity
+            android:name=".AdminProdutosActivity"
+            android:exported="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
-
 
     </application>
 
