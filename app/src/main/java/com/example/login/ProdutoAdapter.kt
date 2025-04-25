@@ -3,14 +3,17 @@ package com.example.login
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import java.text.NumberFormat
 import java.util.Locale
 
 class ProdutoAdapter(private var produtos: List<Produto>) : RecyclerView.Adapter<ProdutoAdapter.ProdutoViewHolder>() {
 
     class ProdutoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imgProduto: ImageView = itemView.findViewById(R.id.imgProduto) // Adicione esta linha
         val nomeProduto: TextView = itemView.findViewById(R.id.txtNomeProduto)
         val descProduto: TextView = itemView.findViewById(R.id.txtDescProduto)
         val precoProduto: TextView = itemView.findViewById(R.id.txtPrecoProduto)
@@ -36,6 +39,11 @@ class ProdutoAdapter(private var produtos: List<Produto>) : RecyclerView.Adapter
         val descontoFormatado = NumberFormat.getNumberInstance(Locale.getDefault()).format(produto.produtoDesconto)
         holder.descontoProduto.text = "Desconto: ${descontoFormatado}"
         holder.ativoProduto.text = "Ativo: ${if (produto.produtoAtivo == 1) "Sim" else "Não"}"
+
+        // Carregar a imagem usando Picasso
+        produto.produtoImagem?.let {
+            Picasso.get().load(it).into(holder.imgProduto)
+        }
     }
 
     override fun getItemCount(): Int {

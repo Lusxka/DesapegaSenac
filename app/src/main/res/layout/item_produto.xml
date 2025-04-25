@@ -1,94 +1,73 @@
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
-    android:elevation="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardBackgroundColor="@android:color/white">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:gravity="center"
-        android:background="@android:color/white">
+        android:padding="16dp">
 
-        <!-- Imagem do Produto -->
         <ImageView
             android:id="@+id/imgProduto"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:contentDescription="Imagem do produto"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
             android:scaleType="centerCrop"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/rounded_image"
-            android:elevation="4dp"/>
+            android:layout_marginBottom="16dp"
+            tools:srcCompat="@drawable/ic_launcher_foreground" /> <TextView
+        android:id="@+id/txtNomeProduto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"
+        tools:text="Nome do Produto" />
 
-        <!-- Nome do Produto -->
-        <TextView
-            android:id="@+id/txtNomeProduto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nome do Produto"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="6dp"/>
-
-        <!-- Descrição do Produto -->
         <TextView
             android:id="@+id/txtDescProduto"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Descrição breve do produto."
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="8dp"/>
-
-        <!-- Preço do Produto -->
-        <TextView
-            android:id="@+id/txtPrecoProduto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Preço: R$ 0,00"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_green_dark"
-            android:layout_marginBottom="6dp"/>
+            android:layout_marginBottom="8dp"
+            tools:text="Pequena descrição do produto." />
 
-        <!-- Desconto do Produto -->
-        <TextView
-            android:id="@+id/txtDescontoProduto"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Desconto: R$ 0,00"
-            android:textSize="14sp"
-            android:textColor="@android:color/holo_red_light"
-            android:layout_marginBottom="6dp"/>
+            android:orientation="horizontal">
 
-        <!-- Status do Produto -->
+            <TextView
+                android:id="@+id/txtPrecoProduto"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="R$ 29,99" />
+
+            <TextView
+                android:id="@+id/txtDescontoProduto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginStart="8dp"
+                tools:text="(10% off)" />
+
+        </LinearLayout>
+
         <TextView
             android:id="@+id/txtAtivoProduto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Produto Ativo"
             android:textSize="14sp"
-            android:textColor="@android:color/holo_blue_dark"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Botão de Contato -->
-        <Button
-            android:id="@+id/btnContato"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Contato"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:background="@drawable/rounded_button"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp"
+            tools:text="Ativo: Sim" />
 
     </LinearLayout>
 

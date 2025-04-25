@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">seu-endereco-api.com</domain> <!-- Substitua pelo domínio real -->
+        <domain includeSubdomains="true">192.168.15.128</domain> <!-- Substitua pelo domínio real -->
     </domain-config>
 </network-security-config>

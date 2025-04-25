@@ -1,6 +1,8 @@
 package com.example.login
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -60,10 +62,17 @@ class ProdutosActivity : AppCompatActivity() {
     private lateinit var recyclerViewProdutos: RecyclerView
     private lateinit var produtoAdapter: ProdutoAdapter
     private lateinit var apiService: ApiService
+    private lateinit var btnIrParaAdmin: Button // Adicione esta linha
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_produtos)
+
+        btnIrParaAdmin = findViewById(R.id.btnIrParaAdmin) // Inicialize o botão
+        btnIrParaAdmin.setOnClickListener {
+            val intent = Intent(this, AdminProdutosActivity::class.java)
+            startActivity(intent)
+        }
 
         recyclerViewProdutos = findViewById(R.id.recyclerViewProdutos)
         recyclerViewProdutos.layoutManager = LinearLayoutManager(this)
@@ -80,7 +89,7 @@ class ProdutosActivity : AppCompatActivity() {
 
         // Inicializar o Retrofit com o OkHttpClient inseguro e o interceptor
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.14.88/meu_projeto_api/listagem/")
+            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(unsafeOkHttpClient)
             .build()

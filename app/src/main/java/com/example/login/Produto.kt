@@ -16,5 +16,7 @@ data class Produto(
     @SerializedName("CATEGORIA_ID")
     val categoriaId: Int,
     @SerializedName("PRODUTO_ATIVO")
-    val produtoAtivo: Int
+    val produtoAtivo: Int,
+    @SerializedName("PRODUTO_IMAGEM")
+    val produtoImagem: String?
 )
