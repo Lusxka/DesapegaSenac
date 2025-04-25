@@ -40,7 +40,7 @@ interface ApiService {
 
     // Método para deletar um produto
     @FormUrlEncoded
-    @POST("deletar_produto.php")
+    @POST("excluir_produto.php")
     fun deletarProduto(
         @Field("PRODUTO_ID") id: Int
     ): Call<Void>

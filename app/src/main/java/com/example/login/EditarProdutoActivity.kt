@@ -35,7 +35,7 @@ class EditarProdutoActivity : AppCompatActivity() {
 
         // Inicializar o Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/") // Use a sua URL base correta
+            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/editar_produto.php") // Use a sua URL base correta
             .addConverterFactory(GsonConverterFactory.create())
             .client(getUnsafeOkHttpClient())
             .build()
