@@ -33,6 +33,10 @@
             android:name=".AdminProdutosActivity"
             android:exported="true" />
 
+        <activity android:name=".EditarProdutoActivity" />
+
+        <activity android:name=".IncluirProdutoActivity" />
+
         <activity
             android:name=".MainActivity"
             android:exported="false" />
