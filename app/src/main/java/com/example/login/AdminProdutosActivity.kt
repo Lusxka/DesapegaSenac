@@ -3,9 +3,11 @@ package com.example.login
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.logging.HttpLoggingInterceptor
@@ -22,10 +24,19 @@ class AdminProdutosActivity : AppCompatActivity() {
     private lateinit var adminProdutoAdapter: AdminProdutoAdapter
     private lateinit var apiService: ApiService
     private lateinit var incluirProdutoButton: Button
+    private lateinit var toolbarAdminProdutos: Toolbar // Adicione a declaração da Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_produtos)
+
+        toolbarAdminProdutos = findViewById(R.id.toolbar_admin_produtos) // Inicialize a Toolbar pelo ID
+        setSupportActionBar(toolbarAdminProdutos)
+
+        // Habilita o botão "Voltar" na Toolbar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.title = "Gerenciar Produtos" // Opcional: Define um título para a Toolbar
 
         recyclerViewAdminProdutos = findViewById(R.id.recyclerViewAdminProdutos)
         recyclerViewAdminProdutos.layoutManager = LinearLayoutManager(this)
@@ -56,6 +67,16 @@ class AdminProdutosActivity : AppCompatActivity() {
         apiService = retrofit.create(ApiService::class.java)
 
         getProdutos()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed() // Simula o pressionamento do botão "Voltar" do sistema
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     fun getProdutos() {
