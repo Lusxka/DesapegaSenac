@@ -10,4 +10,7 @@
     <string name="products_title">Produtos</string>
     <string name="error_loading_products">Erro ao carregar produtos</string>
     <string name="network_error">Erro de conexão</string>
+    <string name="product_image_description">Imagem do produto</string>
+    <string name="register_new_user">Cadastrar novo usuário</string>
+    <string name="product_details">Detalhes do produto</string>
 </resources>
