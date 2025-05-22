@@ -14,8 +14,15 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AdminProdutoAdapter(private var dataSet: List<Produto>, private val apiService: ApiService) :
-    RecyclerView.Adapter<AdminProdutoAdapter.ViewHolder>() {
+interface ProdutoCallback {
+    fun onProdutoDeletado()
+}
+
+class AdminProdutoAdapter(
+    private var dataSet: List<Produto>,
+    private val apiService: ApiService,
+    private val callback: ProdutoCallback
+) : RecyclerView.Adapter<AdminProdutoAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nome: TextView = view.findViewById(R.id.nomeAdminProduto)
@@ -56,7 +63,7 @@ class AdminProdutoAdapter(private var dataSet: List<Produto>, private val apiSer
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
                     if (response.isSuccessful) {
                         Toast.makeText(viewHolder.itemView.context, "Produto deletado com sucesso!", Toast.LENGTH_LONG).show()
-                        (viewHolder.itemView.context as? AdminProdutosActivity)?.getProdutos()
+                        callback.onProdutoDeletado()
                     } else {
                         Toast.makeText(viewHolder.itemView.context, "Erro ao deletar o produto", Toast.LENGTH_LONG).show()
                     }

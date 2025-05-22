@@ -10,33 +10,35 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.*
 
-class AdminProdutosActivity : AppCompatActivity() {
+class AdminProdutosActivity : AppCompatActivity(), ProdutoCallback {
 
     private lateinit var recyclerViewAdminProdutos: RecyclerView
     private lateinit var adminProdutoAdapter: AdminProdutoAdapter
     private lateinit var apiService: ApiService
     private lateinit var incluirProdutoButton: Button
-    private lateinit var toolbarAdminProdutos: Toolbar // Adicione a declaração da Toolbar
+    private lateinit var toolbarAdminProdutos: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_produtos)
 
-        toolbarAdminProdutos = findViewById(R.id.toolbar_admin_produtos) // Inicialize a Toolbar pelo ID
+        toolbarAdminProdutos = findViewById(R.id.toolbar_admin_produtos)
         setSupportActionBar(toolbarAdminProdutos)
-
-        // Habilita o botão "Voltar" na Toolbar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.title = "Gerenciar Produtos" // Opcional: Define um título para a Toolbar
+        supportActionBar?.title = "Gerenciar Produtos"
 
         recyclerViewAdminProdutos = findViewById(R.id.recyclerViewAdminProdutos)
         recyclerViewAdminProdutos.layoutManager = LinearLayoutManager(this)
@@ -47,7 +49,6 @@ class AdminProdutosActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Configuração do Retrofit
         val logging = HttpLoggingInterceptor()
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
 
@@ -59,7 +60,7 @@ class AdminProdutosActivity : AppCompatActivity() {
             .build()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/") // Substitua pela sua URL base correta
+            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(unsafeOkHttpClient)
             .build()
@@ -69,10 +70,28 @@ class AdminProdutosActivity : AppCompatActivity() {
         getProdutos()
     }
 
+    private fun getUnsafeOkHttpClient(): OkHttpClient {
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        })
+
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustAllCerts, SecureRandom())
+
+        val sslSocketFactory = sslContext.socketFactory
+
+        return OkHttpClient.Builder()
+            .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+            .hostnameVerifier { _, _ -> true }
+            .build()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed() // Simula o pressionamento do botão "Voltar" do sistema
+                onBackPressedDispatcher.onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -85,7 +104,7 @@ class AdminProdutosActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<Produto>>, response: Response<List<Produto>>) {
                 if (response.isSuccessful) {
                     val produtos = response.body() ?: emptyList()
-                    adminProdutoAdapter = AdminProdutoAdapter(produtos, apiService)
+                    adminProdutoAdapter = AdminProdutoAdapter(produtos, apiService, this@AdminProdutosActivity)
                     recyclerViewAdminProdutos.adapter = adminProdutoAdapter
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -101,9 +120,12 @@ class AdminProdutosActivity : AppCompatActivity() {
         })
     }
 
+    override fun onProdutoDeletado() {
+        getProdutos()
+    }
+
     override fun onResume() {
         super.onResume()
-        // Recarrega a lista quando a Activity volta ao foreground
         getProdutos()
     }
 }

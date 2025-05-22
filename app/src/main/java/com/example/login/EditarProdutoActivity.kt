@@ -5,11 +5,18 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+import javax.net.ssl.HostnameVerifier
 
 class EditarProdutoActivity : AppCompatActivity() {
 
@@ -33,16 +40,16 @@ class EditarProdutoActivity : AppCompatActivity() {
         imagemEditText = findViewById(R.id.imagemEditText)
         salvarButton = findViewById(R.id.salvarButton)
 
-        // Inicializar o Retrofit
+        // Inicializar Retrofit com client inseguro (apenas para testes locais)
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/") // Use a sua URL base correta
+            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/") // Substitua pela sua URL correta
             .addConverterFactory(GsonConverterFactory.create())
             .client(getUnsafeOkHttpClient())
             .build()
 
         apiService = retrofit.create(ApiService::class.java)
 
-        // Obter os dados do produto da Intent
+        // Preencher os campos com os dados recebidos da intent
         produtoId = intent.getIntExtra("PRODUTO_ID", -1)
         nomeEditText.setText(intent.getStringExtra("PRODUTO_NOME"))
         descricaoEditText.setText(intent.getStringExtra("PRODUTO_DESC"))
@@ -69,9 +76,9 @@ class EditarProdutoActivity : AppCompatActivity() {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@EditarProdutoActivity, "Produto atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                    finish() // Voltar para a tela de listagem
+                    finish() // Voltar para a tela anterior
                 } else {
-                    Toast.makeText(this@EditarProdutoActivity, "Erro ao atualizar produto: ${response.code()} - ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@EditarProdutoActivity, "Erro ao atualizar produto: ${response.code()}", Toast.LENGTH_LONG).show()
                 }
             }
 
@@ -79,5 +86,30 @@ class EditarProdutoActivity : AppCompatActivity() {
                 Toast.makeText(this@EditarProdutoActivity, "Erro de rede ao atualizar produto: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
+    }
+}
+
+// Função auxiliar para ignorar verificação SSL (somente para testes locais)
+fun getUnsafeOkHttpClient(): OkHttpClient {
+    try {
+        val trustAllCerts = arrayOf<TrustManager>(
+            object : X509TrustManager {
+                override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+                override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+            }
+        )
+
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustAllCerts, SecureRandom())
+        val sslSocketFactory = sslContext.socketFactory
+
+        return OkHttpClient.Builder()
+            .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+            .hostnameVerifier(HostnameVerifier { _, _ -> true })
+            .build()
+
+    } catch (e: Exception) {
+        throw RuntimeException(e)
     }
 }
