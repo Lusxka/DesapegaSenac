@@ -1,5 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Desapega Senac</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="search_hint">Buscar produtos...</string>
+    <string name="banner_description">Banner Desapega Senac</string>
+    <string name="admin_button">Admin</string>
+    <string name="products_welcome">Bem-vindo à tela de produtos!</string>
+    <string name="products_title">Produtos</string>
+    <string name="error_loading_products">Erro ao carregar produtos</string>
+    <string name="network_error">Erro de conexão</string>
 </resources>

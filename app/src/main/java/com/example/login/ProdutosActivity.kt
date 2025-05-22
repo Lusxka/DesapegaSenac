@@ -2,10 +2,14 @@ package com.example.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.OkHttpClient
@@ -15,106 +19,111 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-
-fun getUnsafeOkHttpClient(): OkHttpClient {
-    return try {
-        // Criar um TrustManager que não valida cadeias de certificado
-        val trustAllCerts = arrayOf<TrustManager>(
-            object : X509TrustManager {
-                @Throws(java.security.cert.CertificateException::class)
-                override fun checkClientTrusted(chain: Array<X509Certificate?>?, authType: String?) {
-                }
-
-                @Throws(java.security.cert.CertificateException::class)
-                override fun checkServerTrusted(chain: Array<X509Certificate?>?, authType: String?) {
-                }
-
-                override fun getAcceptedIssuers(): Array<X509Certificate> {
-                    return arrayOf()
-                }
-            }
-        )
-
-        // Instalar o TrustManager que aceita todos os certificados
-        val sslContext = SSLContext.getInstance("SSL")
-        sslContext.init(null, trustAllCerts, SecureRandom())
-
-        // Criar um SocketFactory com essas configurações
-        val sslSocketFactory = sslContext.socketFactory
-
-        val builder = OkHttpClient.Builder()
-        builder.sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
-        builder.hostnameVerifier(HostnameVerifier { hostname, session -> true })
-
-        builder.build()
-    } catch (e: Exception) {
-        throw RuntimeException(e)
-    }
-}
+import java.util.concurrent.TimeUnit
 
 class ProdutosActivity : AppCompatActivity() {
-
     private lateinit var recyclerViewProdutos: RecyclerView
     private lateinit var produtoAdapter: ProdutoAdapter
     private lateinit var apiService: ApiService
     private lateinit var btnIrParaAdmin: Button
+    private lateinit var searchEditText: EditText
+    private var allProdutos: List<Produto> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_produtos)
 
-        btnIrParaAdmin = findViewById(R.id.btnIrParaAdmin)
-        btnIrParaAdmin.setOnClickListener {
-            Log.d("ProdutosActivity", "Botão Admin clicado!") // Adicionado para debugging
-            val intent = Intent(this, AdminProdutosActivity::class.java)
-            startActivity(intent)
-        }
+        // Setup Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar_produtos)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = getString(R.string.products_title)
 
+        setupViews()
+        setupSearch()
+        setupRetrofit()
+        getProdutos()
+    }
+
+    private fun setupViews() {
+        btnIrParaAdmin = findViewById(R.id.btnIrParaAdmin)
+        searchEditText = findViewById(R.id.searchEditText)
         recyclerViewProdutos = findViewById(R.id.recyclerViewProdutos)
         recyclerViewProdutos.layoutManager = LinearLayoutManager(this)
         produtoAdapter = ProdutoAdapter(emptyList())
         recyclerViewProdutos.adapter = produtoAdapter
 
-        // Inicializar o Logging Interceptor
-        val logging = HttpLoggingInterceptor()
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+        btnIrParaAdmin.setOnClickListener {
+            startActivity(Intent(this, AdminProdutosActivity::class.java))
+        }
+    }
 
-        val unsafeOkHttpClient = getUnsafeOkHttpClient().newBuilder()
-            .addInterceptor(logging) // Adicione o interceptor aqui
+    private fun setupSearch() {
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                filterProdutos(s?.toString() ?: "")
+            }
+        })
+    }
+
+    private fun filterProdutos(query: String) {
+        if (query.isEmpty()) {
+            produtoAdapter.updateProdutos(allProdutos)
+            return
+        }
+
+        val filteredList = allProdutos.filter { produto ->
+            produto.produtoNome.contains(query, ignoreCase = true) ||
+            produto.produtoDescricao.contains(query, ignoreCase = true)
+        }
+        produtoAdapter.updateProdutos(filteredList)
+    }
+
+    private fun setupRetrofit() {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        val client = getUnsafeOkHttpClient().newBuilder()
+            .addInterceptor(logging)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
 
-        // Inicializar o Retrofit com o OkHttpClient inseguro e o interceptor
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/")
+            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/")
             .addConverterFactory(GsonConverterFactory.create())
-            .client(unsafeOkHttpClient)
+            .client(client)
             .build()
 
         apiService = retrofit.create(ApiService::class.java)
-
-        getProdutos()
     }
 
     private fun getProdutos() {
-        val call = apiService.getProdutos()
-        call.enqueue(object : Callback<List<Produto>> {
+        apiService.getProdutos().enqueue(object : Callback<List<Produto>> {
             override fun onResponse(call: Call<List<Produto>>, response: Response<List<Produto>>) {
                 if (response.isSuccessful) {
-                    val produtos = response.body() ?: emptyList()
-                    produtoAdapter.updateProdutos(produtos)
+                    allProdutos = response.body() ?: emptyList()
+                    produtoAdapter.updateProdutos(allProdutos)
                 } else {
-                    Toast.makeText(this@ProdutosActivity, "Erro ao obter produtos: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ProdutosActivity,
+                        getString(R.string.error_loading_products),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<List<Produto>>, t: Throwable) {
-                Toast.makeText(this@ProdutosActivity, "Erro de rede: ${t.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@ProdutosActivity,
+                    getString(R.string.network_error),
+                    Toast.LENGTH_SHORT
+                ).show()
+                Log.e("ProdutosActivity", "Network error: ${t.message}")
             }
         })
     }
