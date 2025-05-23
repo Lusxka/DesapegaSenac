@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Desapega Senac</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="search_hint">Buscar produtos...</string>
+    <string name="navigation_drawer_open">Abrir menu de navegação</string> <string name="navigation_drawer_close">Fechar menu de navegação</string> <string name="search_hint">Buscar produtos...</string>
     <string name="banner_description">Banner Desapega Senac</string>
     <string name="admin_button">Admin</string>
     <string name="products_welcome">Bem-vindo à tela de produtos!</string>
@@ -14,4 +12,9 @@
     <string name="register_new_user">Cadastrar novo usuário</string>
     <string name="product_details">Detalhes do produto</string>
     <string name="logout">Sair</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_sobre">Sobre</string>
+    <string name="menu_minha_conta">Minha Conta</string>
+    <string name="menu_politica_privacidade">Política e Privacidade</string>
 </resources>
