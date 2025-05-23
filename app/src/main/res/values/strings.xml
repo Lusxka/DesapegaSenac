@@ -13,4 +13,5 @@
     <string name="product_image_description">Imagem do produto</string>
     <string name="register_new_user">Cadastrar novo usuário</string>
     <string name="product_details">Detalhes do produto</string>
+    <string name="logout">Sair</string>
 </resources>

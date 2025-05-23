@@ -14,7 +14,10 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/primary_blue"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:titleTextColor="@android:color/white"
+            app:navigationIcon="@drawable/ic_menu" />
+        <!-- Ícone ic_menu em drawable -->
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -24,14 +27,15 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Banner Image -->
+        <!-- Banner Image ajustado -->
         <ImageView
             android:id="@+id/bannerImage"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
+            android:layout_height="160dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
             android:src="@drawable/desapega_senac_logo"
-            android:contentDescription="@string/banner_description"/>
+            android:contentDescription="@string/banner_description" />
 
         <!-- Search Bar -->
         <androidx.cardview.widget.CardView
@@ -72,17 +76,20 @@
 
         </androidx.cardview.widget.CardView>
 
+        <!-- Botões e título -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:weightSum="3">
 
             <Button
                 android:id="@+id/btnIrParaAdmin"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1.5"
                 android:text="@string/admin_button"
                 android:backgroundTint="@color/primary_orange"
                 android:textColor="@color/white"
@@ -97,8 +104,19 @@
                 android:textSize="20sp"
                 android:textColor="@color/text_primary"/>
 
+            <Button
+                android:id="@+id/logoutButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/logout"
+                android:backgroundTint="@color/primary_red"
+                android:textColor="@color/white"
+                style="@style/Widget.MaterialComponents.Button"/>
+
         </LinearLayout>
 
+        <!-- RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewProdutos"
             android:layout_width="match_parent"
