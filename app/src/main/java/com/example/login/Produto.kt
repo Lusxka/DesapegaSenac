@@ -1,6 +1,7 @@
 package com.example.login
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable // Adicione esta importação novamente
 
 data class Produto(
     @SerializedName("PRODUTO_ID")
@@ -19,4 +20,4 @@ data class Produto(
     val produtoAtivo: Int,
     @SerializedName("PRODUTO_IMAGEM")
     val produtoImagem: String?
-)
+) : Serializable // Implemente Serializable aqui
