@@ -45,4 +45,14 @@ interface ApiService {
         @Field("PRODUTO_ID") id: Int
     ): Call<Void>
 
+    // --- NOVO MÉTODO PARA CADASTRO DE USUÁRIO ---
+    @FormUrlEncoded
+    @POST("cadastrar_usuario.php") // Você precisará criar este arquivo PHP
+    fun registerUser(
+        @Field("USUARIO_NOME") nome: String,
+        @Field("USUARIO_EMAIL") email: String,
+        @Field("USUARIO_SENHA") senha: String,
+        @Field("USUARIO_CPF") cpf: String,
+        @Field("USUARIO_TELEFONE") telefone: String
+    ): Call<Void> // Ou Call<LoginResponse> se o PHP retornar dados do usuário
 }

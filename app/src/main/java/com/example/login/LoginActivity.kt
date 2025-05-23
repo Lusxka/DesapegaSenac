@@ -16,6 +16,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var registerButton: Button // Adicione esta linha
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,9 +27,16 @@ class LoginActivity : AppCompatActivity() {
         emailEditText = findViewById(R.id.emailEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
         val loginButton: Button = findViewById(R.id.loginButton)
+        registerButton = findViewById(R.id.registerButton) // Inicialize o botão de cadastro
 
         loginButton.setOnClickListener {
             blockLogin()
+        }
+
+        // Listener para o botão de cadastro
+        registerButton.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java) // Abre a RegisterActivity
+            startActivity(intent)
         }
     }
 
@@ -48,14 +56,18 @@ class LoginActivity : AppCompatActivity() {
 
         val apiService = retrofit.create(ApiService::class.java)
 
-        apiService.login(email, password).enqueue(object : Callback<List<LoginResponse>> {
+        // Note: Se o fazerLogin no ApiService espera List<Usuario>, o Callback também deve ser List<Usuario>
+        // Pelo seu LoginActivity original, você estava usando List<LoginResponse> aqui.
+        // Vou manter como está no seu ApiService (List<Usuario>) para consistência, mas revise
+        // a resposta esperada do seu login.php
+        apiService.fazerLogin(email, password).enqueue(object : Callback<List<Usuario>> {
             override fun onResponse(
-                call: Call<List<LoginResponse>>,
-                response: Response<List<LoginResponse>>
+                call: Call<List<Usuario>>,
+                response: Response<List<Usuario>>
             ) {
                 if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                     preferencesManager.saveUser(email)
-                    val intent = Intent(this@LoginActivity, ProdutosActivity::class.java)
+                    val intent = Intent(this@LoginActivity, ProdutosActivity::class.java) // Assumindo ProdutosActivity é a próxima tela
                     startActivity(intent)
                     finish()
                 } else {
@@ -63,17 +75,9 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<List<LoginResponse>>, t: Throwable) {
+            override fun onFailure(call: Call<List<Usuario>>, t: Throwable) {
                 Toast.makeText(this@LoginActivity, "Erro: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
-    }
-
-    interface ApiService {
-        @GET("login.php")
-        fun login(
-            @Query("usuario") usuario: String,
-            @Query("senha") senha: String
-        ): Call<List<LoginResponse>>
     }
 }
