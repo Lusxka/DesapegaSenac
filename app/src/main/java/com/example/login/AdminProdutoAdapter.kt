@@ -8,14 +8,17 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog // Importa AlertDialog do androidx
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+// Interface ProdutoCallback atualizada com onProdutoNaoDeletado
 interface ProdutoCallback {
     fun onProdutoDeletado()
+    fun onProdutoNaoDeletado(mensagemErro: String)
 }
 
 class AdminProdutoAdapter(
@@ -43,10 +46,19 @@ class AdminProdutoAdapter(
         val produto = dataSet[position]
         viewHolder.nome.text = produto.produtoNome
         viewHolder.descricao.text = produto.produtoDescricao
-        viewHolder.preco.text = "R$ ${produto.produtoPreco}"
+        viewHolder.preco.text = "R$ ${String.format("%.2f", produto.produtoPreco)}" // Formata o preço com 2 casas decimais
+
+        // Carrega imagem com Picasso, incluindo placeholders e tratamento de erro
         produto.produtoImagem?.let {
-            Picasso.get().load(it).into(viewHolder.imagem)
+            Picasso.get().load(it)
+                .placeholder(R.drawable.ic_placeholder_image) // Imagem placeholder (crie esta drawable)
+                .error(R.drawable.ic_error_image) // Imagem de erro (crie esta drawable)
+                .into(viewHolder.imagem)
+        } ?: run {
+            // Se produto.produtoImagem for nulo, define o placeholder diretamente
+            viewHolder.imagem.setImageResource(R.drawable.ic_placeholder_image)
         }
+
 
         viewHolder.editarButton.setOnClickListener {
             val intent = Intent(it.context, EditarProdutoActivity::class.java)
@@ -59,27 +71,50 @@ class AdminProdutoAdapter(
         }
 
         viewHolder.deletarButton.setOnClickListener {
-            apiService.deletarProduto(produto.produtoId).enqueue(object : Callback<Void> {
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    if (response.isSuccessful) {
-                        Toast.makeText(viewHolder.itemView.context, "Produto deletado com sucesso!", Toast.LENGTH_LONG).show()
-                        callback.onProdutoDeletado()
-                    } else {
-                        Toast.makeText(viewHolder.itemView.context, "Erro ao deletar o produto", Toast.LENGTH_LONG).show()
-                    }
-                }
+            val context = viewHolder.itemView.context // Obtenha o contexto da view
 
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Toast.makeText(viewHolder.itemView.context, "Erro ao deletar o produto: ${t.message}", Toast.LENGTH_LONG).show()
+            // Cria o AlertDialog para confirmação de exclusão
+            AlertDialog.Builder(context)
+                .setTitle("Confirmar Exclusão")
+                .setMessage("Tem certeza que deseja excluir o produto '${produto.produtoNome}'? Esta ação é irreversível.")
+                .setPositiveButton("Sim, Excluir") { dialog, which ->
+                    // Se o usuário clicar "Sim", prossegue com a exclusão
+                    apiService.deletarProduto(produto.produtoId).enqueue(object : Callback<Void> {
+                        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                            if (response.isSuccessful) {
+                                Toast.makeText(context, "Produto deletado com sucesso!", Toast.LENGTH_LONG).show()
+                                callback.onProdutoDeletado() // Chama o callback de sucesso na Activity
+                            } else {
+                                val errorBody = response.errorBody()?.string() ?: "Erro desconhecido"
+                                Toast.makeText(context, "Erro ao deletar o produto: ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
+                                callback.onProdutoNaoDeletado("Código: ${response.code()}, Erro: $errorBody") // Passa erro detalhado
+                            }
+                        }
+
+                        override fun onFailure(call: Call<Void>, t: Throwable) {
+                            val errorMessage = t.message ?: "Erro de conexão"
+                            Toast.makeText(context, "Erro ao deletar o produto: $errorMessage", Toast.LENGTH_LONG).show()
+                            callback.onProdutoNaoDeletado("Rede: $errorMessage") // Passa erro de rede
+                        }
+                    })
                 }
-            })
+                .setNegativeButton("Não, Cancelar") { dialog, which ->
+                    // Se o usuário clicar "Não", apenas fecha o diálogo
+                    dialog.dismiss()
+                    Toast.makeText(context, "Exclusão cancelada.", Toast.LENGTH_SHORT).show()
+                }
+                .show() // Exibe o AlertDialog
         }
     }
 
     override fun getItemCount() = dataSet.size
 
-    fun updateList(newList: List<Produto>) {
-        dataSet = newList
-        notifyDataSetChanged()
+    /**
+     * Atualiza a lista de produtos no adapter e notifica o RecyclerView para redesenhar.
+     * @param newProdutos A nova lista de produtos.
+     */
+    fun updateData(newProdutos: List<Produto>) {
+        this.dataSet = newProdutos
+        notifyDataSetChanged() // Informa ao RecyclerView que os dados foram alterados
     }
 }

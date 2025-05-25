@@ -6,14 +6,15 @@
     <color name="primary_blue">#0052CC</color>
     <color name="light_blue">#2684FF</color>
     <color name="dark_blue">#0056B3</color>
-    <color name="primary_red">#D32F2F</color> <color name="primary_orange">#FF6F00</color>
+
+    <color name="primary_red">#D32F2F</color>
+    <color name="red_error">#DC3545</color> <color name="primary_orange">#FF6F00</color>
     <color name="light_orange">#FFA040</color>
     <color name="dark_orange">#E65100</color>
 
     <color name="light_gray">#F5F5F5</color>
     <color name="subtle_text">#B0B0B0</color>
-
-    <color name="card_background">#FFFFFF</color>
+    <color name="dark_gray">#333333</color> <color name="card_background">#FFFFFF</color>
     <color name="divider_gray">#E0E0E0</color>
     <color name="text_primary">#333333</color>
     <color name="text_secondary">#666666</color>

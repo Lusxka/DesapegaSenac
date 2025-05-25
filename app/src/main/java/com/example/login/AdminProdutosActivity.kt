@@ -10,17 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import java.util.concurrent.TimeUnit
-import javax.net.ssl.*
+
+// A interface ProdutoCallback é definida em AdminProdutoAdapter.kt
+// (Mantenha apenas uma definição global para evitar conflitos)
 
 class AdminProdutosActivity : AppCompatActivity(), ProdutoCallback {
 
@@ -38,7 +35,7 @@ class AdminProdutosActivity : AppCompatActivity(), ProdutoCallback {
         setSupportActionBar(toolbarAdminProdutos)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.title = "Gerenciar Produtos"
+        // O título é definido no XML via app:title="@string/admin_produtos_title"
 
         recyclerViewAdminProdutos = findViewById(R.id.recyclerViewAdminProdutos)
         recyclerViewAdminProdutos.layoutManager = LinearLayoutManager(this)
@@ -49,83 +46,74 @@ class AdminProdutosActivity : AppCompatActivity(), ProdutoCallback {
             startActivity(intent)
         }
 
-        val logging = HttpLoggingInterceptor()
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-
-        val unsafeOkHttpClient = getUnsafeOkHttpClient().newBuilder()
-            .addInterceptor(logging)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .build()
+        // Use o OkHttpClient centralizado e inseguro de NetworkUtils.kt
+        // Assumo que 'getUnsafeOkHttpClient()' está definido em um arquivo NetworkUtils.kt ou similar
+        // (Você precisa garantir que NetworkUtils.kt e a função getUnsafeOkHttpClient() existam no seu projeto)
+        val unsafeOkHttpClient = getUnsafeOkHttpClient() // A função já inclui o logging e timeouts
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/")
+            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/") // Mantenha sua URL base
             .addConverterFactory(GsonConverterFactory.create())
             .client(unsafeOkHttpClient)
             .build()
 
         apiService = retrofit.create(ApiService::class.java)
 
-        getProdutos()
-    }
-
-    private fun getUnsafeOkHttpClient(): OkHttpClient {
-        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-        })
-
-        val sslContext = SSLContext.getInstance("SSL")
-        sslContext.init(null, trustAllCerts, SecureRandom())
-
-        val sslSocketFactory = sslContext.socketFactory
-
-        return OkHttpClient.Builder()
-            .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
-            .hostnameVerifier { _, _ -> true }
-            .build()
+        // getProdutos() será chamado em onResume
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed()
+                onBackPressedDispatcher.onBackPressed() // Ou finish() se for o comportamento desejado
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    fun getProdutos() {
+    private fun getProdutos() {
         val call = apiService.getProdutos()
         call.enqueue(object : Callback<List<Produto>> {
             override fun onResponse(call: Call<List<Produto>>, response: Response<List<Produto>>) {
                 if (response.isSuccessful) {
                     val produtos = response.body() ?: emptyList()
-                    adminProdutoAdapter = AdminProdutoAdapter(produtos, apiService, this@AdminProdutosActivity)
-                    recyclerViewAdminProdutos.adapter = adminProdutoAdapter
+                    if (::adminProdutoAdapter.isInitialized) {
+                        adminProdutoAdapter.updateData(produtos) // Chama o método updateData do adapter
+                    } else {
+                        adminProdutoAdapter = AdminProdutoAdapter(produtos, apiService, this@AdminProdutosActivity)
+                        recyclerViewAdminProdutos.adapter = adminProdutoAdapter
+                    }
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    Toast.makeText(this@AdminProdutosActivity, "Erro ao obter produtos: ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
+                    val errorMessage = getString(R.string.error_loading_products_with_code, "${response.code()} - $errorBody")
+                    Toast.makeText(this@AdminProdutosActivity, errorMessage, Toast.LENGTH_LONG).show()
                     Log.e("AdminProdutosActivity", "Erro ao obter produtos: ${response.code()} - $errorBody")
                 }
             }
 
             override fun onFailure(call: Call<List<Produto>>, t: Throwable) {
-                Toast.makeText(this@AdminProdutosActivity, "Erro de rede: ${t.message}", Toast.LENGTH_LONG).show()
-                Log.e("AdminProdutosActivity", "Erro de rede ao obter produtos: ${t.message}")
+                val errorMessage = getString(R.string.error_network_loading_products, t.message ?: "Erro desconhecido")
+                Toast.makeText(this@AdminProdutosActivity, errorMessage, Toast.LENGTH_LONG).show()
+                Log.e("AdminProdutosActivity", "Erro de rede ao obter produtos: ${t.message}", t)
             }
         })
     }
 
+    // Implementação do ProdutoCallback
     override fun onProdutoDeletado() {
-        getProdutos()
+        Toast.makeText(this, getString(R.string.product_deleted_successfully), Toast.LENGTH_SHORT).show()
+        getProdutos() // Atualiza a lista
     }
+
+    override fun onProdutoNaoDeletado(mensagemErro: String) {
+        val displayMessage = "${getString(R.string.error_deleting_product)}: $mensagemErro"
+        Toast.makeText(this, displayMessage, Toast.LENGTH_LONG).show()
+    }
+    // Fim da Implementação do ProdutoCallback
 
     override fun onResume() {
         super.onResume()
-        getProdutos()
+        getProdutos() // Carrega/Atualiza os produtos sempre que a activity é resumida
     }
 }

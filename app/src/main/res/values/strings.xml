@@ -44,4 +44,39 @@
     <string name="image_loading_error">Não foi possível carregar a imagem selecionada.</string>
     <string name="permission_required_gallery">Permissão de acesso à galeria é necessária.</string>
 
+    <string name="admin_produtos_title">Gerenciar Produtos</string>
+    <string name="incluir_produto_title">Incluir Produto</string>
+    <string name="editar_produto_title">Editar Produto</string>
+
+    <string name="btn_incluir_produto">Incluir Novo Produto</string>
+    <string name="btn_salvar_alteracoes">Salvar Alterações</string>
+
+    <string name="hint_id_produto">ID do Produto</string>
+    <string name="hint_nome_produto">Nome do Produto</string>
+    <string name="hint_descricao_produto">Descrição do Produto</string>
+    <string name="hint_preco_produto">Preço do Produto</string>
+    <string name="hint_url_imagem_produto">URL da Imagem do Produto</string>
+
+    <string name="label_id_produto">ID do Produto</string>
+    <string name="label_nome_produto">Nome</string>
+    <string name="label_descricao_produto">Descrição</string>
+    <string name="label_preco_produto">Preço</string>
+    <string name="label_url_imagem_produto">URL da Imagem</string>
+
+    <string name="action_confirm">Confirmar</string>
+    <string name="delete_product_dialog_title">Excluir Produto</string>
+    <string name="delete_product_dialog_message">Tem certeza que deseja excluir este produto?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="product_deleted_successfully">Produto excluído com sucesso.</string>
+    <string name="error_deleting_product">Erro ao excluir produto</string>
+    <string name="fill_all_fields">Por favor, preencha todos os campos.</string>
+    <string name="product_updated_successfully">Produto atualizado com sucesso!</string>
+    <string name="error_updating_product">Erro ao atualizar produto</string>
+    <string name="error_network_updating_product">Erro de rede ao atualizar produto: %1$s</string>
+    <string name="product_added_successfully">Produto incluído com sucesso!</string>
+    <string name="error_adding_product">Erro ao incluir produto</string>
+    <string name="error_network_adding_product">Erro de rede ao incluir produto: %1$s</string>
+    <string name="error_loading_products_with_code">Erro ao obter produtos: %1$s</string>
+    <string name="error_network_loading_products">Erro de rede ao obter produtos: %1$s</string>
+
 </resources>
