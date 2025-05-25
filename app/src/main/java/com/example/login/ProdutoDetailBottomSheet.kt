@@ -51,8 +51,7 @@ class ProdutoDetailBottomSheet : BottomSheetDialogFragment() {
             view.findViewById<TextView>(R.id.productDetailPrice).text = formatoMoeda.format(produto.produtoPreco)
 
             val productImageView = view.findViewById<ImageView>(R.id.productDetailImage)
-            produto.produtoImagem?.let { imageUrl -> // Renomeado para imageUrl
-                // Carrega a URL completa da imagem diretamente
+            produto.produtoImagem?.let { imageUrl ->
                 Picasso.get()
                     .load(imageUrl)
                     .placeholder(R.drawable.placeholder_product)
@@ -62,7 +61,15 @@ class ProdutoDetailBottomSheet : BottomSheetDialogFragment() {
 
             val contactButton = view.findViewById<Button>(R.id.contactSellerButton)
             contactButton.setOnClickListener {
-                Toast.makeText(context, "Informações de contato do vendedor não disponíveis no momento.", Toast.LENGTH_SHORT).show()
+                val phoneNumber = "5511911029671"
+                val uri = Uri.parse("https://wa.me/$phoneNumber")
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                try {
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "WhatsApp não instalado.", Toast.LENGTH_SHORT).show()
+                    e.printStackTrace()
+                }
             }
         }
     }
