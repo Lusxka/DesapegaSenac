@@ -50,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.56.1/meu_projeto_api/")
+            .baseUrl("http://192.168.1.113/meu_projeto_api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

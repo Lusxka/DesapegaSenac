@@ -167,7 +167,7 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             .build()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/")
+            .baseUrl("https://192.168.1.113/meu_projeto_api/listagem/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()

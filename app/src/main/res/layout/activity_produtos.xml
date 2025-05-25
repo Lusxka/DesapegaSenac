@@ -29,14 +29,6 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <ImageView
-            android:id="@+id/bannerImage"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/desapega_senac_logo"
-            android:contentDescription="@string/banner_description"/>
-
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
