@@ -1,27 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/light_gray">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:elevation="0dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar_produtos"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/primary_blue"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+                app:title="@string/produtos"
+                app:titleTextColor="@color/white" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/card_background">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp">
+
+                    <EditText
+                        android:id="@+id/searchEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/search_hint"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/subtle_text"
+                        android:autofillHints="product_search" />
+
+                    <ImageView
+                        android:id="@+id/searchIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="8dp"
+                        android:contentDescription="@string/search"
+                        app:srcCompat="@drawable/ic_search"
+                        app:tint="@color/primary_blue" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
         </com.google.android.material.appbar.AppBarLayout>
 
         <LinearLayout
@@ -30,52 +83,18 @@
             android:orientation="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <EditText
-                        android:id="@+id/searchEditText"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:background="@null"
-                        android:hint="@string/search_hint"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:textColorHint="@color/subtle_text"
-                        android:imeOptions="actionSearch"
-                        android:inputType="text"
-                        android:autofillHints="name" />
-
-                    <ImageView
-                        android:id="@+id/searchIcon"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:padding="12dp"
-                        android:src="@android:drawable/ic_menu_search"
-                        app:tint="@color/primary_blue"
-                        android:contentDescription="Search Icon"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/products_welcome"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:paddingStart="24dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="16dp"
+                android:text="@string/products_welcome"
                 android:textColor="@color/text_primary"
-                android:padding="16dp"/>
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewProdutos"
@@ -83,7 +102,8 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:clipToPadding="false"
-                android:padding="8dp"/>
+                android:padding="8dp"
+                tools:listitem="@layout/item_produto" />
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

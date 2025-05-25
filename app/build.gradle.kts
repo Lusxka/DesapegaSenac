@@ -33,6 +33,13 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    sourceSets {
+        getByName("main") {
+            assets {
+                srcDirs("src\\main\\assets", "src\\main\\assets")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -46,6 +53,18 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    // Para lidar com permissões de forma mais fácil (Activity KTX)
+    implementation("androidx.activity:activity-ktx:1.8.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.0")
+
+    // Para carregar imagens de forma eficiente (Glide - mantido para MinhaContaActivity)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // Para CircleImageView
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    // Outras dependências que você já tinha:
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -54,5 +73,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.google.code.gson:gson:2.8.9")
-    implementation("com.squareup.picasso:picasso:2.8") // A dependência crucial do Picasso!
+
+    // RE-ADICIONADO: Dependência do Picasso, conforme sua preferência
+    implementation("com.squareup.picasso:picasso:2.8")
 }

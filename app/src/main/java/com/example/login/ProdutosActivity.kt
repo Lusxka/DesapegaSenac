@@ -1,5 +1,6 @@
 package com.example.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -18,12 +19,10 @@ import com.google.android.material.navigation.NavigationView
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
-import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import java.util.concurrent.TimeUnit
+import javax.net.ssl.*
 
 class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -31,7 +30,6 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var produtoAdapter: ProdutoAdapter
     private lateinit var apiService: ApiService
     private lateinit var searchEditText: EditText
-    private lateinit var preferencesManager: PreferencesManager
 
     private var allProdutos: List<Produto> = emptyList()
 
@@ -44,11 +42,10 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_produtos)
 
+        // Configura toolbar
         toolbar = findViewById(R.id.toolbar_produtos)
         setSupportActionBar(toolbar)
         supportActionBar?.title = getString(R.string.products_title)
-
-        preferencesManager = PreferencesManager(this)
 
         setupViews()
         setupSearch()
@@ -76,10 +73,11 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_home -> showToast("Home clicado")
-            R.id.nav_sobre -> showToast("Sobre clicado")
-            R.id.nav_minha_conta -> showToast("Minha Conta clicado")
-            R.id.nav_politica_privacidade -> showToast("Política e Privacidade clicado")
+            R.id.nav_home -> startActivity(Intent(this, ProdutosActivity::class.java))
+            R.id.nav_admin -> startActivity(Intent(this, AdminProdutosActivity::class.java))
+            R.id.nav_sobre -> startActivity(Intent(this, SobreActivity::class.java))
+            R.id.nav_minha_conta -> startActivity(Intent(this, MinhaContaActivity::class.java))
+            R.id.nav_politica_privacidade -> startActivity(Intent(this, PoliticaPrivacidadeActivity::class.java))
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -123,34 +121,30 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private fun filterProdutos(query: String) {
         if (query.isEmpty()) {
             produtoAdapter.updateProdutos(allProdutos)
-            return
+        } else {
+            val filteredList = allProdutos.filter {
+                it.produtoNome.contains(query, ignoreCase = true) ||
+                        it.produtoDescricao.contains(query, ignoreCase = true)
+            }
+            produtoAdapter.updateProdutos(filteredList)
         }
-
-        val filteredList = allProdutos.filter {
-            it.produtoNome.contains(query, ignoreCase = true) ||
-                    it.produtoDescricao.contains(query, ignoreCase = true)
-        }
-        produtoAdapter.updateProdutos(filteredList)
     }
 
     private fun setupRetrofit() {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
-
         val client = getUnsafeOkHttpClient().newBuilder()
             .addInterceptor(logging)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
-
         val retrofit = Retrofit.Builder()
             .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
-
         apiService = retrofit.create(ApiService::class.java)
     }
 
@@ -161,12 +155,20 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     allProdutos = response.body() ?: emptyList()
                     produtoAdapter.updateProdutos(allProdutos)
                 } else {
-                    showToast(getString(R.string.error_loading_products))
+                    Toast.makeText(
+                        this@ProdutosActivity,
+                        getString(R.string.error_loading_products),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<List<Produto>>, t: Throwable) {
-                showToast(getString(R.string.network_error))
+                Toast.makeText(
+                    this@ProdutosActivity,
+                    getString(R.string.network_error),
+                    Toast.LENGTH_SHORT
+                ).show()
                 Log.e("ProdutosActivity", "Network error: ${t.message}")
             }
         })
@@ -178,19 +180,12 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
             override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
         })
-
-        val sslContext = SSLContext.getInstance("SSL")
-        sslContext.init(null, trustAllCerts, SecureRandom())
-
-        val sslSocketFactory = sslContext.socketFactory
-
+        val sslContext = SSLContext.getInstance("SSL").apply {
+            init(null, trustAllCerts, SecureRandom())
+        }
         return okhttp3.OkHttpClient.Builder()
-            .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+            .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
             .hostnameVerifier { _, _ -> true }
             .build()
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Desapega Senac</string>
-    <string name="navigation_drawer_open">Abrir menu de navegação</string> <string name="navigation_drawer_close">Fechar menu de navegação</string> <string name="search_hint">Buscar produtos...</string>
+    <string name="navigation_drawer_open">Abrir menu de navegação</string>
+    <string name="navigation_drawer_close">Fechar menu de navegação</string>
+    <string name="search_hint">Buscar produtos...</string>
     <string name="banner_description">Banner Desapega Senac</string>
     <string name="admin_title">Área do Administrador</string>
     <string name="products_welcome">Bem-vindo aos Melhores Seminovos!</string>
@@ -12,10 +14,34 @@
     <string name="register_new_user">Cadastrar novo usuário</string>
     <string name="product_details">Detalhes do produto</string>
     <string name="logout">Sair</string>
+    <string name="minha_conta">Minha Conta</string>
 
     <string name="menu_home">Home</string>
     <string name="menu_sobre">Sobre</string>
     <string name="menu_minha_conta">Minha Conta</string>
     <string name="menu_politica_privacidade">Política e Privacidade</string>
+    <string name="menu_admin">Administração</string>
+
+    <string name="sobre">Sobre</string>
+    <string name="politica_de_privacidade">Política e Privacidade</string>
     <string name="admin_button">Administração</string>
+
+    <string name="politica_privacidade_text">Conteúdo da Política de Privacidade</string>
+    <string name="sobre_o_aplicativo_texto">Conteúdo Sobre o Aplicativo</string>
+
+    <string name="profile_picture">Foto de Perfil</string>
+    <string name="alterar_foto">Alterar Foto</string>
+    <string name="nome">Nome Completo</string>
+    <string name="email">E-mail</string>
+    <string name="cpf">CPF</string>
+    <string name="telefone">Telefone</string>
+    <string name="salvar_perfil">Salvar Perfil</string>
+    <string name="produtos">Produtos</string>
+    <string name="search">Buscar</string>
+
+    <string name="profile_updated_success">Perfil atualizado com sucesso!</string>
+    <string name="image_selection_error">Erro ao selecionar a imagem.</string>
+    <string name="image_loading_error">Não foi possível carregar a imagem selecionada.</string>
+    <string name="permission_required_gallery">Permissão de acesso à galeria é necessária.</string>
+
 </resources>
