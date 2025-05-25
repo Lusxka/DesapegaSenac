@@ -32,7 +32,7 @@ class IncluirProdutoActivity : AppCompatActivity() {
 
         // Inicializar o Retrofit (utilizando a mesma configuração insegura)
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.1.113/meu_projeto_api/listagem/") // Use a sua URL base correta
+            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/") // Use a sua URL base correta
             .addConverterFactory(GsonConverterFactory.create())
             .client(getUnsafeOkHttpClient())
             .build()

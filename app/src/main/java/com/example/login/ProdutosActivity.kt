@@ -1,12 +1,10 @@
 package com.example.login
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -21,8 +19,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
-
-// Adicione estas importações
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -34,9 +30,9 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var recyclerViewProdutos: RecyclerView
     private lateinit var produtoAdapter: ProdutoAdapter
     private lateinit var apiService: ApiService
-    private lateinit var btnIrParaAdmin: Button
     private lateinit var searchEditText: EditText
     private lateinit var preferencesManager: PreferencesManager
+
     private var allProdutos: List<Produto> = emptyList()
 
     private lateinit var drawerLayout: DrawerLayout
@@ -80,27 +76,17 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_home -> {
-                Toast.makeText(this, "Home clicado", Toast.LENGTH_SHORT).show()
-            }
-            R.id.nav_sobre -> {
-                Toast.makeText(this, "Sobre clicado", Toast.LENGTH_SHORT).show()
-            }
-            R.id.nav_minha_conta -> {
-                Toast.makeText(this, "Minha Conta clicado", Toast.LENGTH_SHORT).show()
-            }
-            R.id.nav_politica_privacidade -> {
-                Toast.makeText(this, "Política e Privacidade clicado", Toast.LENGTH_SHORT).show()
-            }
+            R.id.nav_home -> showToast("Home clicado")
+            R.id.nav_sobre -> showToast("Sobre clicado")
+            R.id.nav_minha_conta -> showToast("Minha Conta clicado")
+            R.id.nav_politica_privacidade -> showToast("Política e Privacidade clicado")
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (toggle.onOptionsItemSelected(item)) {
-            return true
-        }
+        if (toggle.onOptionsItemSelected(item)) return true
         return super.onOptionsItemSelected(item)
     }
 
@@ -113,22 +99,15 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     }
 
     private fun setupViews() {
-        btnIrParaAdmin = findViewById(R.id.btnIrParaAdmin)
         searchEditText = findViewById(R.id.searchEditText)
         recyclerViewProdutos = findViewById(R.id.recyclerViewProdutos)
         recyclerViewProdutos.layoutManager = LinearLayoutManager(this)
 
-        // Inicialize o adapter e passe o lambda de clique
         produtoAdapter = ProdutoAdapter(emptyList()) { produto ->
-            // Este é o callback quando um produto é clicado
             val bottomSheet = ProdutoDetailBottomSheet.newInstance(produto)
             bottomSheet.show(supportFragmentManager, ProdutoDetailBottomSheet.TAG)
         }
         recyclerViewProdutos.adapter = produtoAdapter
-
-        btnIrParaAdmin.setOnClickListener {
-            startActivity(Intent(this, AdminProdutosActivity::class.java))
-        }
     }
 
     private fun setupSearch() {
@@ -167,7 +146,7 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             .build()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.1.113/meu_projeto_api/listagem/")
+            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
@@ -182,37 +161,36 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     allProdutos = response.body() ?: emptyList()
                     produtoAdapter.updateProdutos(allProdutos)
                 } else {
-                    Toast.makeText(this@ProdutosActivity, getString(R.string.error_loading_products), Toast.LENGTH_SHORT).show()
+                    showToast(getString(R.string.error_loading_products))
                 }
             }
 
             override fun onFailure(call: Call<List<Produto>>, t: Throwable) {
-                Toast.makeText(this@ProdutosActivity, getString(R.string.network_error), Toast.LENGTH_SHORT).show()
+                showToast(getString(R.string.network_error))
                 Log.e("ProdutosActivity", "Network error: ${t.message}")
             }
         })
     }
 
-    // Certifique-se de que esta função está definida em algum lugar ou substitua pela sua lógica de segurança
     private fun getUnsafeOkHttpClient(): okhttp3.OkHttpClient {
-        try {
-            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-                override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-                override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
-                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-            })
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        })
 
-            val sslContext = SSLContext.getInstance("SSL")
-            sslContext.init(null, trustAllCerts, SecureRandom())
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustAllCerts, SecureRandom())
 
-            val sslSocketFactory = sslContext.socketFactory
+        val sslSocketFactory = sslContext.socketFactory
 
-            return okhttp3.OkHttpClient.Builder()
-                .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
-                .hostnameVerifier { _, _ -> true }
-                .build()
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
+        return okhttp3.OkHttpClient.Builder()
+            .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+            .hostnameVerifier { _, _ -> true }
+            .build()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

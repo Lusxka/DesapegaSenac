@@ -42,7 +42,7 @@ class EditarProdutoActivity : AppCompatActivity() {
 
         // Inicializar Retrofit com client inseguro (apenas para testes locais)
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.1.113/meu_projeto_api/listagem/") // Substitua pela sua URL correta
+            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/") // Substitua pela sua URL correta
             .addConverterFactory(GsonConverterFactory.create())
             .client(getUnsafeOkHttpClient())
             .build()
