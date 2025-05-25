@@ -13,14 +13,14 @@
         android:gravity="center"
         android:fitsSystemWindows="true">
 
-        <ImageView
+        <androidx.cardview.widget.CardView
+            android:layout_width="150dp"   android:layout_height="150dp"  android:layout_marginBottom="48dp"
+            app:cardCornerRadius="75dp"    app:cardElevation="4dp"        app:cardBackgroundColor="@android:color/transparent"> <ImageView
             android:id="@+id/appLogo"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:src="@drawable/desapega_senac_logo"
+            android:layout_width="match_parent"  android:layout_height="match_parent" android:src="@drawable/desapega_senac_logo"
             android:contentDescription="Logo do Desapega Senac"
-            android:layout_marginBottom="48dp"
-            android:scaleType="fitCenter"/>
+            android:scaleType="centerCrop"/> </androidx.cardview.widget.CardView>
+
 
         <TextView
             android:id="@+id/loginTitle"
