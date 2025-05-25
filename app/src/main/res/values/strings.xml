@@ -78,5 +78,5 @@
     <string name="error_network_adding_product">Erro de rede ao incluir produto: %1$s</string>
     <string name="error_loading_products_with_code">Erro ao obter produtos: %1$s</string>
     <string name="error_network_loading_products">Erro de rede ao obter produtos: %1$s</string>
-
+    <string name="ver_detalhes">Ver Detalhes</string>
 </resources>

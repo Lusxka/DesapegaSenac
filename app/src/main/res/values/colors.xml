@@ -8,13 +8,15 @@
     <color name="dark_blue">#0056B3</color>
 
     <color name="primary_red">#D32F2F</color>
-    <color name="red_error">#DC3545</color> <color name="primary_orange">#FF6F00</color>
+    <color name="red_error">#DC3545</color>
+    <color name="primary_orange">#FF6F00</color>
     <color name="light_orange">#FFA040</color>
     <color name="dark_orange">#E65100</color>
 
     <color name="light_gray">#F5F5F5</color>
     <color name="subtle_text">#B0B0B0</color>
-    <color name="dark_gray">#333333</color> <color name="card_background">#FFFFFF</color>
+    <color name="dark_gray">#333333</color>
+    <color name="card_background">#FFFFFF</color>
     <color name="divider_gray">#E0E0E0</color>
     <color name="text_primary">#333333</color>
     <color name="text_secondary">#666666</color>
@@ -23,4 +25,4 @@
     <color name="button_disabled">#B0B0B0</color>
     <color name="ripple_color">#1A2684FF</color>
 
-</resources>
+    <color name="background_light">#F5F5F5</color> <color name="primary_brand_color">#0052CC</color> <color name="card_background_light">#FFFFFF</color> <color name="text_primary_dark">#212121</color> <color name="text_secondary_dark">#757575</color> <color name="text_hint_dark">#B0B0B0</color> <color name="accent_color">#FFC107</color> <color name="status_active_background">#4CAF50</color> <color name="overlay_black_60">#99000000</color> <color name="overlay_black_50">#80000000</color> </resources>
