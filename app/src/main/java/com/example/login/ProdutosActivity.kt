@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.ImageView
@@ -36,31 +37,27 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var navigationView: NavigationView
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
-    private lateinit var bannerImageView: ImageView // Adicionado o banner ImageView para inicialização
+    private lateinit var bannerImageView: ImageView
+    private lateinit var preferencesManager: PreferencesManager
+    private lateinit var searchIcon: ImageView
 
     private var allProdutos: List<Produto> = emptyList()
 
-    // Constante para o nome do arquivo SharedPreferences
     private val PREF_NAME = "user_session"
-    // Constante para a chave de verificação de login
     private val KEY_IS_LOGGED_IN = "is_logged_in"
-    // Adicione esta linha para o ImageView de pesquisa, se ele estiver no layout
-    private lateinit var searchIcon: ImageView
-
+    private val KEY_USER_ADM = "user_adm"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_produtos)
 
-        // Configura toolbar
         toolbar = findViewById(R.id.toolbar_produtos)
         setSupportActionBar(toolbar)
         supportActionBar?.title = getString(R.string.products_title)
 
-        // Inicialize o bannerImageView
         bannerImageView = findViewById(R.id.bannerImageView)
-        // Opcional: Se você quiser setar a imagem via código (já está no XML)
-        // bannerImageView.setImageResource(R.drawable.banner_desapega_senac)
+
+        preferencesManager = PreferencesManager(this)
 
         setupViews()
         setupSearch()
@@ -68,18 +65,20 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         getProdutos()
         setupNavigationDrawer()
 
-        // Adicionando a inicialização do searchIcon, se ele existir no seu layout
         searchIcon = findViewById(R.id.searchIcon)
         searchIcon.setOnClickListener {
             val query = searchEditText.text.toString()
             Toast.makeText(this, "Pesquisando por: $query", Toast.LENGTH_SHORT).show()
-            filterProdutos(query) // Chame a função de filtro
+            filterProdutos(query)
         }
+
+        updateAdminMenuVisibility()
     }
 
     private fun setupNavigationDrawer() {
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
 
         toggle = ActionBarDrawerToggle(
             this,
@@ -90,14 +89,18 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+    }
 
-        navigationView.setNavigationItemSelectedListener(this)
+    private fun updateAdminMenuVisibility() {
+        val isAdmin = preferencesManager.getUserAdm()?.toIntOrNull() ?: 0 // Converte para Int ou usa 0 como padrão
+        val navMenu: Menu = navigationView.menu
+        val adminItem = navMenu.findItem(R.id.nav_admin)
+        adminItem?.isVisible = (isAdmin == 1) // Compara com o inteiro 1
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_home -> {
-                // Se já estiver na Home, apenas fecha o drawer ou recarrega, se necessário
                 drawerLayout.closeDrawer(GravityCompat.START)
             }
             R.id.nav_admin -> startActivity(Intent(this, AdminProdutosActivity::class.java))
@@ -105,7 +108,7 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             R.id.nav_minha_conta -> startActivity(Intent(this, MinhaContaActivity::class.java))
             R.id.nav_politica_privacidade -> startActivity(Intent(this, PoliticaPrivacidadeActivity::class.java))
             R.id.nav_logout -> {
-                performLogout() // Chama a função de logout
+                performLogout()
             }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
@@ -170,7 +173,7 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/")
+            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
@@ -220,41 +223,25 @@ class ProdutosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     // --- Funções de SharedPreferences e Logout ---
 
-    /**
-     * Marca o usuário como logado no SharedPreferences.
-     * Deve ser chamada após um login bem-sucedido.
-     */
     fun setLoggedIn(isLoggedIn: Boolean) {
         val sharedPref = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         with (sharedPref.edit()) {
             putBoolean(KEY_IS_LOGGED_IN, isLoggedIn)
-            apply() // Use apply() para salvar assincronamente
+            apply()
         }
     }
 
-    /**
-     * Verifica se o usuário está logado consultando o SharedPreferences.
-     */
     fun isLoggedIn(): Boolean {
         val sharedPref = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return sharedPref.getBoolean(KEY_IS_LOGGED_IN, false) // Default é false (não logado)
+        return sharedPref.getBoolean(KEY_IS_LOGGED_IN, false)
     }
 
-    /**
-     * Realiza a operação de logout:
-     * 1. Limpa o estado de login no SharedPreferences.
-     * 2. Redireciona para a tela de login.
-     * 3. Finaliza a atividade atual para prevenir o retorno.
-     */
     private fun performLogout() {
-        setLoggedIn(false) // Define o usuário como não logado
-
-        // Redireciona para a tela de Login
-        val intent = Intent(this, LoginActivity::class.java) // Assumindo LoginActivity como a tela de login
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Limpa a pilha de atividades
+        setLoggedIn(false)
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
-
-        finish() // Finaliza a atividade atual
+        finish()
         Toast.makeText(this, "Você saiu do aplicativo.", Toast.LENGTH_SHORT).show()
     }
 }

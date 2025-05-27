@@ -17,7 +17,6 @@ interface ApiService {
     @GET("produtos.php")
     fun getProdutos(): Call<List<Produto>>
 
-    // Método para incluir um produto
     @FormUrlEncoded
     @POST("incluir_produto.php")
     fun incluirProduto(
@@ -27,7 +26,6 @@ interface ApiService {
         @Field("PRODUTO_IMAGEM") imagem: String
     ): Call<Void>
 
-    // Método para editar um produto
     @FormUrlEncoded
     @POST("editar_produto.php")
     fun editarProduto(
@@ -38,21 +36,19 @@ interface ApiService {
         @Field("PRODUTO_IMAGEM") imagem: String
     ): Call<Void>
 
-    // Método para deletar um produto
     @FormUrlEncoded
     @POST("excluir_produto.php")
     fun deletarProduto(
         @Field("PRODUTO_ID") id: Int
     ): Call<Void>
 
-    // --- NOVO MÉTODO PARA CADASTRO DE USUÁRIO ---
     @FormUrlEncoded
-    @POST("cadastrar_usuario.php") // Você precisará criar este arquivo PHP
+    @POST("cadastrar_usuario.php")
     fun registerUser(
         @Field("USUARIO_NOME") nome: String,
         @Field("USUARIO_EMAIL") email: String,
         @Field("USUARIO_SENHA") senha: String,
         @Field("USUARIO_CPF") cpf: String,
         @Field("USUARIO_TELEFONE") telefone: String
-    ): Call<Void> // Ou Call<LoginResponse> se o PHP retornar dados do usuário
+    ): Call<Void>
 }

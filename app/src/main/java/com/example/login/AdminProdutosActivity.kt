@@ -52,7 +52,7 @@ class AdminProdutosActivity : AppCompatActivity(), ProdutoCallback {
         val unsafeOkHttpClient = getUnsafeOkHttpClient() // A função já inclui o logging e timeouts
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/") // Mantenha sua URL base
+            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/") // Mantenha sua URL base
             .addConverterFactory(GsonConverterFactory.create())
             .client(unsafeOkHttpClient)
             .build()

@@ -1,4 +1,4 @@
-<?php 
+<?php
 $host = 'www.thyagoquintas.com.br';
 $db   = 'engenharia_17';
 $user = 'engenharia_17';
@@ -20,10 +20,10 @@ try {
         $usuario = $_GET['usuario'];
         $senha = $_GET['senha'];
 
-        $sql = "SELECT USUARIO_ID as usuarioId, USUARIO_NOME as usuarioNome, USUARIO_EMAIL as usuarioEmail, USUARIO_SENHA as usuarioSenha, USUARIO_CPF as usuarioCpf 
+        $sql = "SELECT USUARIO_ID as usuarioId, USUARIO_NOME as usuarioNome, USUARIO_EMAIL as usuarioEmail, USUARIO_SENHA as usuarioSenha, USUARIO_CPF as usuarioCpf, USUARIO_ADM as usuarioAdm
                 FROM USUARIO 
                 WHERE USUARIO_EMAIL = :usuario";
-        
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['usuario' => $usuario]);
         $usuarios = $stmt->fetchAll();
@@ -32,7 +32,8 @@ try {
             $usuarioBanco = $usuarios[0];
 
             if ($senha === $usuarioBanco['usuarioSenha']) {
-                echo json_encode([$usuarioBanco]); // Login bem-sucedido
+                error_log("Login bem-sucedido: " . json_encode([$usuarioBanco]));
+                echo json_encode([$usuarioBanco]);
             } else {
                 echo json_encode([]); // Senha incorreta
             }

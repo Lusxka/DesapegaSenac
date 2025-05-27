@@ -44,7 +44,7 @@ class IncluirProdutoActivity : AppCompatActivity() {
         val unsafeOkHttpClient = getUnsafeOkHttpClient()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://192.168.56.1/meu_projeto_api/listagem/") // Use a sua URL base correta
+            .baseUrl("https://192.168.15.128/meu_projeto_api/listagem/") // Use a sua URL base correta
             .addConverterFactory(GsonConverterFactory.create())
             .client(unsafeOkHttpClient)
             .build()

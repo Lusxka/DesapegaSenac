@@ -2,21 +2,20 @@ package com.example.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Query
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var preferencesManager: PreferencesManager
-    private lateinit var registerButton: Button // Adicione esta linha
+    private lateinit var registerButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,15 +26,14 @@ class LoginActivity : AppCompatActivity() {
         emailEditText = findViewById(R.id.emailEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
         val loginButton: Button = findViewById(R.id.loginButton)
-        registerButton = findViewById(R.id.registerButton) // Inicialize o botão de cadastro
+        registerButton = findViewById(R.id.registerButton)
 
         loginButton.setOnClickListener {
             blockLogin()
         }
 
-        // Listener para o botão de cadastro
         registerButton.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java) // Abre a RegisterActivity
+            val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
     }
@@ -50,24 +48,27 @@ class LoginActivity : AppCompatActivity() {
         }
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.56.1/meu_projeto_api/")
+            .baseUrl("http://192.168.15.128/meu_projeto_api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         val apiService = retrofit.create(ApiService::class.java)
 
-        // Note: Se o fazerLogin no ApiService espera List<Usuario>, o Callback também deve ser List<Usuario>
-        // Pelo seu LoginActivity original, você estava usando List<LoginResponse> aqui.
-        // Vou manter como está no seu ApiService (List<Usuario>) para consistência, mas revise
-        // a resposta esperada do seu login.php
         apiService.fazerLogin(email, password).enqueue(object : Callback<List<Usuario>> {
             override fun onResponse(
                 call: Call<List<Usuario>>,
                 response: Response<List<Usuario>>
             ) {
+                Log.d("LoginActivity", "Response Code: ${response.code()}")
+                Log.d("LoginActivity", "Response Body: ${response.body()}")
+                Log.d("LoginActivity", "Response Raw: ${response.raw()}")
+
                 if (response.isSuccessful && !response.body().isNullOrEmpty()) {
+                    val user = response.body()!![0]
                     preferencesManager.saveUser(email)
-                    val intent = Intent(this@LoginActivity, ProdutosActivity::class.java) // Assumindo ProdutosActivity é a próxima tela
+                    val userAdmValue = user.usuarioAdm.toString() // Converter para String
+                    preferencesManager.saveUserAdm(userAdmValue)
+                    val intent = Intent(this@LoginActivity, ProdutosActivity::class.java)
                     startActivity(intent)
                     finish()
                 } else {
@@ -76,6 +77,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<List<Usuario>>, t: Throwable) {
+                Log.e("LoginActivity", "Erro na chamada de login: ${t.message}")
                 Toast.makeText(this@LoginActivity, "Erro: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
