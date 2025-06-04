@@ -6,5 +6,7 @@ data class Usuario(
     val usuarioEmail: String,
     val usuarioSenha: String,
     val usuarioCpf: String,
-    val usuarioAdm: Int
+    val usuarioAdm: Int,
+    val usuarioTelefone: String?,
+    val usuarioImagemUrl: String?
 )

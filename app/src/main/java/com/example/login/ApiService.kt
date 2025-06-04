@@ -51,4 +51,14 @@ interface ApiService {
         @Field("USUARIO_CPF") cpf: String,
         @Field("USUARIO_TELEFONE") telefone: String
     ): Call<Void>
+
+    @FormUrlEncoded
+    @POST("editar_usuario.php") // Método para editar o usuário
+    fun editarUsuario(
+        @Field("USUARIO_ID") usuarioId: Int,
+        @Field("USUARIO_NOME") usuarioNome: String,
+        @Field("USUARIO_EMAIL") usuarioEmail: String,
+        @Field("USUARIO_TELEFONE") usuarioTelefone: String,
+        @Field("USUARIO_IMAGEM_URL") usuarioImagemUrl: String?
+    ): Call<Void>
 }

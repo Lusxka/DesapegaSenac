@@ -14,13 +14,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MinhaContaActivity : AppCompatActivity() {
 
-    // Referências das views (usaremos findViewById diretamente)
     private lateinit var profileImage: CircleImageView
     private lateinit var tvChangePhoto: TextView
     private lateinit var editTextNome: EditText
@@ -29,7 +33,11 @@ class MinhaContaActivity : AppCompatActivity() {
     private lateinit var editTextTelefone: EditText
     private lateinit var fabSaveProfile: FloatingActionButton
 
-    // Launcher para solicitar permissões da galeria
+    private lateinit var apiService: ApiService
+    private lateinit var preferencesManager: PreferencesManager
+    private var currentUser: Usuario? = null
+    private var selectedImageUri: Uri? = null
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -44,18 +52,17 @@ class MinhaContaActivity : AppCompatActivity() {
         }
     }
 
-    // Launcher para receber o resultado da seleção da imagem da galeria
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val imageUri: Uri? = result.data?.data
             imageUri?.let {
-                // Carregar a imagem com Glide no CircleImageView
-                Glide.with(this)
+                selectedImageUri = it
+                Picasso.get()
                     .load(it)
-                    .placeholder(R.drawable.ic_default_profile) // Opcional: imagem enquanto carrega
-                    .error(R.drawable.ic_default_profile)       // Opcional: imagem se der erro
+                    .placeholder(R.drawable.ic_default_profile)
+                    .error(R.drawable.ic_default_profile)
                     .into(profileImage)
             } ?: run {
                 Toast.makeText(
@@ -77,11 +84,12 @@ class MinhaContaActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_minha_conta)
 
-        // Inicializar as views
         val toolbar = findViewById<Toolbar>(R.id.toolbar_minha_conta)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.minha_conta) // Usar a string direta "minha_conta"
+        supportActionBar?.title = getString(R.string.minha_conta)
+
+        preferencesManager = PreferencesManager(this)
 
         profileImage = findViewById(R.id.profile_image)
         tvChangePhoto = findViewById(R.id.tv_change_photo)
@@ -91,70 +99,87 @@ class MinhaContaActivity : AppCompatActivity() {
         editTextTelefone = findViewById(R.id.editTextTelefone)
         fabSaveProfile = findViewById(R.id.fab_save_profile)
 
-        // Desabilitar campos de CPF e Telefone
         editTextCPF.isEnabled = false
-        editTextTelefone.isEnabled = false
+        editTextTelefone.isEnabled = true
 
-        // Exemplo: Carregar dados iniciais (simulação)
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://192.168.15.128/meu_projeto_api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        apiService = retrofit.create(ApiService::class.java)
+
         loadProfileData()
 
-        // Configurar listener para "Alterar Foto"
         tvChangePhoto.setOnClickListener {
             checkGalleryPermissionAndOpen()
         }
 
-        // Configurar listener para o botão de salvar (FAB)
         fabSaveProfile.setOnClickListener {
             saveProfileData()
         }
     }
 
     private fun loadProfileData() {
-        // Carregar dados existentes do perfil (substitua com seus dados reais)
-        editTextNome.setText("Gabriel Barreto")
-        editTextEmail.setText("gabriel.barreto@example.com")
-        editTextCPF.setText("123.456.789-00")
-        editTextTelefone.setText("(11) 99999-9999")
+        currentUser = preferencesManager.getUser()
 
-        // Exemplo de como você carregaria uma foto de perfil salva (se tiver uma URI)
-        // val savedImageUriString = "content://media/external/images/media/..." // Obtenha esta URI do seu banco de dados/preferências
-        // if (savedImageUriString.isNotEmpty()) {
-        //     Glide.with(this)
-        //         .load(Uri.parse(savedImageUriString))
-        //         .placeholder(R.drawable.ic_default_profile)
-        //         .error(R.drawable.ic_default_profile)
-        //         .into(profileImage)
-        // }
+        currentUser?.let {
+            editTextNome.setText(it.usuarioNome)
+            editTextEmail.setText(it.usuarioEmail)
+            editTextCPF.setText(it.usuarioCpf)
+            editTextTelefone.setText(it.usuarioTelefone ?: "")
+
+            if (!it.usuarioImagemUrl.isNullOrEmpty()) {
+                Picasso.get()
+                    .load(it.usuarioImagemUrl)
+                    .placeholder(R.drawable.ic_default_profile)
+                    .error(R.drawable.ic_default_profile)
+                    .into(profileImage)
+            } else {
+                profileImage.setImageResource(R.drawable.ic_default_profile)
+            }
+        } ?: run {
+            Toast.makeText(this, "Erro: Usuário não carregado do SharedPreferences. Faça login novamente.", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun checkGalleryPermissionAndOpen() {
         when {
-            // Se a permissão já foi concedida
             ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.READ_EXTERNAL_STORAGE // Para Android 12 e anteriores
-            ) == PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.READ_MEDIA_IMAGES // Para Android 13 e superiores
-                    ) == PackageManager.PERMISSION_GRANTED -> {
+                Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED -> {
                 openGallery()
             }
-            // Se a permissão foi negada antes e o usuário precisa de explicação
-            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
-                // Mostrar um diálogo ou Toast explicando por que a permissão é necessária
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE // Esta é a linha 174 no seu código, a ser corrigida
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                openGallery()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                    shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
                 Toast.makeText(
                     this,
                     "Precisamos de acesso à sua galeria para selecionar a foto de perfil.",
                     Toast.LENGTH_LONG
                 ).show()
-                // Tenta solicitar a permissão mais genérica para compatibilidade
-                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                requestPermissionLauncher.launch(
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    } else {
+                        Manifest.permission.READ_EXTERNAL_STORAGE // Corrigido aqui
+                    }
+                )
             }
-            // Solicitar a permissão pela primeira vez
             else -> {
-                // Tenta solicitar a permissão mais genérica para compatibilidade
-                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                requestPermissionLauncher.launch(
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    } else {
+                        Manifest.permission.READ_EXTERNAL_STORAGE // Corrigido aqui
+                    }
+                )
             }
         }
     }
@@ -165,27 +190,69 @@ class MinhaContaActivity : AppCompatActivity() {
     }
 
     private fun saveProfileData() {
-        // Aqui você obteria os dados atualizados dos campos e os salvaria
-        val nomeAtualizado = editTextNome.text.toString()
-        val emailAtualizado = editTextEmail.text.toString()
+        val nomeAtualizado = editTextNome.text.toString().trim()
+        val emailAtualizado = editTextEmail.text.toString().trim()
+        val telefoneAtualizado = editTextTelefone.text.toString().trim()
 
-        // Exemplo: Salvar a URI da imagem do perfil (se houver uma nova)
-        // val currentProfileImageUri = (profileImage.drawable as? BitmapDrawable)?.bitmap?.toUri() // Isso é mais complexo, exigiria salvar o bitmap em arquivo primeiro
-        // Para simplificar, você salvaria a 'imageUri' recebida do picker se fosse uma imagem nova.
+        if (nomeAtualizado.isEmpty() || emailAtualizado.isEmpty() || telefoneAtualizado.isEmpty()) {
+            Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        // ** Importante **: Em um aplicativo real, aqui você chamaria sua lógica de negócios
-        // para persistir esses dados (ex: salvar em um banco de dados, enviar para uma API).
+        val usuarioId = currentUser?.usuarioId
+        if (usuarioId == null || usuarioId == 0) {
+            Toast.makeText(this, "Erro: ID do usuário não encontrado para atualização. Faça login novamente.", Toast.LENGTH_LONG).show()
+            return
+        }
 
-        // Exibir mensagem de sucesso profissional
-        Toast.makeText(this, getString(R.string.profile_updated_success), Toast.LENGTH_SHORT).show()
+        val imagemUrlParaSalvar: String? = selectedImageUri?.toString() ?: currentUser?.usuarioImagemUrl
 
-        // Opcional: Desabilitar o botão por um tempo ou mostrar um indicador de progresso
-        // fabSaveProfile.isEnabled = false
-        // Handler(Looper.getMainLooper()).postDelayed({ fabSaveProfile.isEnabled = true }, 2000)
+        apiService.editarUsuario(
+            usuarioId = usuarioId,
+            usuarioNome = nomeAtualizado,
+            usuarioEmail = emailAtualizado,
+            usuarioTelefone = telefoneAtualizado,
+            usuarioImagemUrl = imagemUrlParaSalvar
+        ).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(
+                        this@MinhaContaActivity,
+                        getString(R.string.profile_updated_success),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    currentUser = currentUser?.copy(
+                        usuarioNome = nomeAtualizado,
+                        usuarioEmail = emailAtualizado,
+                        usuarioTelefone = telefoneAtualizado,
+                        usuarioImagemUrl = imagemUrlParaSalvar
+                    )
+                    currentUser?.let {
+                        preferencesManager.saveUser(it)
+                    }
+
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Toast.makeText(
+                        this@MinhaContaActivity,
+                        "Erro ao atualizar perfil: ${response.code()} - $errorBody",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(
+                    this@MinhaContaActivity,
+                    "Falha na conexão: ${t.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        })
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressedDispatcher.onBackPressed() // Abordagem mais moderna
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 }
