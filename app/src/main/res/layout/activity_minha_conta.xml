@@ -83,8 +83,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@color/text_primary" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:enabled="false"   android:textColor="@color/text_secondary" /> </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
@@ -113,7 +112,7 @@
                     android:id="@+id/editTextTelefone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:enabled="true" android:inputType="phone"
+                    android:inputType="phone"
                     android:textColor="@color/text_primary" /> </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log // Importar para usar Log.d e Log.e
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -38,6 +39,7 @@ class MinhaContaActivity : AppCompatActivity() {
     private var currentUser: Usuario? = null
     private var selectedImageUri: Uri? = null
 
+    // Launcher para solicitar permissões da galeria
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -52,6 +54,7 @@ class MinhaContaActivity : AppCompatActivity() {
         }
     }
 
+    // Launcher para escolher imagem da galeria
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -99,14 +102,19 @@ class MinhaContaActivity : AppCompatActivity() {
         editTextTelefone = findViewById(R.id.editTextTelefone)
         fabSaveProfile = findViewById(R.id.fab_save_profile)
 
+        // Torna o campo CPF não editável
         editTextCPF.isEnabled = false
-        editTextTelefone.isEnabled = true
+        // O campo E-MAIL será controlado via XML para a aparência "apagada"
+        // Não defina editTextEmail.isEnabled = false aqui, pois o XML já cuida disso para a aparência
+        // mas a propriedade `enabled` no XML também torna o campo não editável por padrão.
+        // Se você quiser que o telefone seja editável, mantenha como true. Se não, false.
+        editTextTelefone.isEnabled = true // Deixando telefone editável
 
+        // Inicializa Retrofit e ApiService
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.15.128/meu_projeto_api/")
+            .baseUrl("http://192.168.15.128/meu_projeto_api/") // VERIFIQUE SE ESTE IP ESTÁ CORRETO
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
         apiService = retrofit.create(ApiService::class.java)
 
         loadProfileData()
@@ -121,13 +129,14 @@ class MinhaContaActivity : AppCompatActivity() {
     }
 
     private fun loadProfileData() {
+        // Carrega os dados do usuário do SharedPreferences
         currentUser = preferencesManager.getUser()
 
         currentUser?.let {
             editTextNome.setText(it.usuarioNome)
             editTextEmail.setText(it.usuarioEmail)
             editTextCPF.setText(it.usuarioCpf)
-            editTextTelefone.setText(it.usuarioTelefone ?: "")
+            editTextTelefone.setText(it.usuarioTelefone ?: "") // Lida com telefone nulo
 
             if (!it.usuarioImagemUrl.isNullOrEmpty()) {
                 Picasso.get()
@@ -140,6 +149,10 @@ class MinhaContaActivity : AppCompatActivity() {
             }
         } ?: run {
             Toast.makeText(this, "Erro: Usuário não carregado do SharedPreferences. Faça login novamente.", Toast.LENGTH_LONG).show()
+            // Opcional: Redirecionar para a tela de login se o usuário não for encontrado
+            // val intent = Intent(this, LoginActivity::class.java)
+            // startActivity(intent)
+            // finish()
         }
     }
 
@@ -147,16 +160,17 @@ class MinhaContaActivity : AppCompatActivity() {
         when {
             ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.READ_MEDIA_IMAGES
+                Manifest.permission.READ_MEDIA_IMAGES // Para Android 13+
             ) == PackageManager.PERMISSION_GRANTED -> {
                 openGallery()
             }
             ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.READ_EXTERNAL_STORAGE // Esta é a linha 174 no seu código, a ser corrigida
+                Manifest.permission.READ_EXTERNAL_STORAGE // Para Android 12-
             ) == PackageManager.PERMISSION_GRANTED -> {
                 openGallery()
             }
+            // Se a permissão foi negada antes e o usuário precisa de explicação
             shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) ||
                     shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
                 Toast.makeText(
@@ -164,20 +178,23 @@ class MinhaContaActivity : AppCompatActivity() {
                     "Precisamos de acesso à sua galeria para selecionar a foto de perfil.",
                     Toast.LENGTH_LONG
                 ).show()
+                // Solicita a permissão apropriada com base na versão do Android
                 requestPermissionLauncher.launch(
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                         Manifest.permission.READ_MEDIA_IMAGES
                     } else {
-                        Manifest.permission.READ_EXTERNAL_STORAGE // Corrigido aqui
+                        Manifest.permission.READ_EXTERNAL_STORAGE
                     }
                 )
             }
+            // Solicitar a permissão pela primeira vez
             else -> {
+                // Solicita a permissão apropriada com base na versão do Android
                 requestPermissionLauncher.launch(
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                         Manifest.permission.READ_MEDIA_IMAGES
                     } else {
-                        Manifest.permission.READ_EXTERNAL_STORAGE // Corrigido aqui
+                        Manifest.permission.READ_EXTERNAL_STORAGE
                     }
                 )
             }
@@ -191,48 +208,67 @@ class MinhaContaActivity : AppCompatActivity() {
 
     private fun saveProfileData() {
         val nomeAtualizado = editTextNome.text.toString().trim()
-        val emailAtualizado = editTextEmail.text.toString().trim()
+        val emailAtualizado = editTextEmail.text.toString().trim() // O email é lido, mas não editável pelo usuário
         val telefoneAtualizado = editTextTelefone.text.toString().trim()
+
+        // Adicionar logs para depuração
+        Log.d("MinhaContaActivity", "Tentando salvar perfil...")
+        Log.d("MinhaContaActivity", "Nome atualizado: '$nomeAtualizado'")
+        Log.d("MinhaContaActivity", "Email (não editável): '$emailAtualizado'")
+        Log.d("MinhaContaActivity", "Telefone atualizado: '$telefoneAtualizado'")
 
         if (nomeAtualizado.isEmpty() || emailAtualizado.isEmpty() || telefoneAtualizado.isEmpty()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
+            Log.w("MinhaContaActivity", "Campos obrigatórios vazios.")
             return
         }
 
         val usuarioId = currentUser?.usuarioId
-        if (usuarioId == null || usuarioId == 0) {
+        if (usuarioId == null || usuarioId == 0) { // Verifica se o ID é válido
             Toast.makeText(this, "Erro: ID do usuário não encontrado para atualização. Faça login novamente.", Toast.LENGTH_LONG).show()
+            Log.e("MinhaContaActivity", "ID do usuário nulo ou zero, impossível salvar.")
             return
         }
 
+        // Se uma nova imagem foi selecionada, use a URI dela. Caso contrário, use a URL da imagem atual do usuário.
         val imagemUrlParaSalvar: String? = selectedImageUri?.toString() ?: currentUser?.usuarioImagemUrl
+        Log.d("MinhaContaActivity", "Imagem URL para salvar: '$imagemUrlParaSalvar'")
 
         apiService.editarUsuario(
             usuarioId = usuarioId,
             usuarioNome = nomeAtualizado,
-            usuarioEmail = emailAtualizado,
+            usuarioEmail = emailAtualizado, // Envia o email, que não foi modificado na UI
             usuarioTelefone = telefoneAtualizado,
             usuarioImagemUrl = imagemUrlParaSalvar
         ).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                Log.d("MinhaContaActivity", "Resposta da API - Código: ${response.code()}")
+                Log.d("MinhaContaActivity", "Resposta da API - Mensagem: ${response.message()}")
+
                 if (response.isSuccessful) {
                     Toast.makeText(
                         this@MinhaContaActivity,
                         getString(R.string.profile_updated_success),
                         Toast.LENGTH_SHORT
                     ).show()
+                    Log.i("MinhaContaActivity", "Perfil atualizado com sucesso na API.")
+
+                    // Atualiza o objeto currentUser com os dados mais recentes
                     currentUser = currentUser?.copy(
                         usuarioNome = nomeAtualizado,
-                        usuarioEmail = emailAtualizado,
+                        usuarioEmail = emailAtualizado, // Mantenha o email original/carregado
                         usuarioTelefone = telefoneAtualizado,
                         usuarioImagemUrl = imagemUrlParaSalvar
                     )
+                    // Salva o usuário atualizado no SharedPreferences
                     currentUser?.let {
                         preferencesManager.saveUser(it)
+                        Log.d("MinhaContaActivity", "Usuário atualizado no SharedPreferences.")
                     }
 
                 } else {
                     val errorBody = response.errorBody()?.string()
+                    Log.e("MinhaContaActivity", "Erro ao atualizar perfil na API: ${response.code()} - $errorBody")
                     Toast.makeText(
                         this@MinhaContaActivity,
                         "Erro ao atualizar perfil: ${response.code()} - $errorBody",
@@ -242,6 +278,7 @@ class MinhaContaActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("MinhaContaActivity", "Falha na conexão ao atualizar perfil: ${t.message}", t)
                 Toast.makeText(
                     this@MinhaContaActivity,
                     "Falha na conexão: ${t.message}",
