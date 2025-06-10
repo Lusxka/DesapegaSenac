@@ -84,7 +84,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun performRegistration(name: String, email: String, password: String, cpf: String, phone: String) {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.56.1/meu_projeto_api/") // Use a mesma URL base da LoginActivity
+            .baseUrl("http://192.168.15.128/meu_projeto_api/") // Use a mesma URL base da LoginActivity
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
